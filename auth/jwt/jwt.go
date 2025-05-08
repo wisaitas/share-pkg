@@ -1,0 +1,89 @@
+package jwt
+
+import (
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type Claims interface {
+	jwt.Claims
+	GetID() string
+}
+
+type StandardClaims struct {
+	jwt.RegisteredClaims
+	ID string `json:"id"`
+}
+
+func (s StandardClaims) GetID() string {
+	return s.ID
+}
+
+type Util interface {
+	Generate(claims Claims, secret string) (string, error)
+	Parse(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error)
+	ExtractTokenFromHeader(c *fiber.Ctx) (string, error)
+	ValidateToken(tokenString string, claims jwt.Claims, secret string) error
+	CreateStandardClaims(id string, expireTime time.Duration) StandardClaims
+}
+
+type util struct{}
+
+func New() Util {
+	return &util{}
+}
+
+func (j *util) Generate(claims Claims, secret string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+func (j *util) ExtractTokenFromHeader(c *fiber.Ctx) (string, error) {
+	authHeader := c.Get("Authorization")
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return "", errors.New("invalid token type")
+	}
+
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	return token, nil
+}
+
+func (j *util) Parse(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error) {
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return claims, nil
+}
+
+func (j *util) ValidateToken(tokenString string, claims jwt.Claims, secret string) error {
+	_, err := j.Parse(tokenString, claims, secret)
+	return err
+}
+
+func (j *util) CreateStandardClaims(id string, expireTime time.Duration) StandardClaims {
+	return StandardClaims{
+		ID: id,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireTime)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+}
