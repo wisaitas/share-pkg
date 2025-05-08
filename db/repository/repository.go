@@ -4,29 +4,28 @@ import (
 	"gorm.io/gorm"
 )
 
-type Condition struct {
-	Query interface{}
-	Args  []interface{}
-}
-
-func NewCondition(query interface{}, args ...interface{}) *Condition {
-	return &Condition{
-		Query: query,
-		Args:  args,
+type (
+	Condition struct {
+		Query interface{}
+		Args  []interface{}
 	}
-}
 
-type Relation struct {
-	Query string
-	Args  []interface{}
-}
-
-func NewRelation(query string, args ...interface{}) *Relation {
-	return &Relation{
-		Query: query,
-		Args:  args,
+	Relation struct {
+		Query string
+		Args  []interface{}
 	}
-}
+
+	PaginationQuery struct {
+		Page     *int    `query:"page"`
+		PageSize *int    `query:"page_size"`
+		Sort     *string `query:"sort"`
+		Order    *string `query:"order"`
+	}
+
+	baseRepository[T any] struct {
+		db *gorm.DB
+	}
+)
 
 type Base[T any] interface {
 	GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error
@@ -42,15 +41,27 @@ type Base[T any] interface {
 	WithTx(tx *gorm.DB) Base[T]
 }
 
-type PaginationQuery struct {
-	Page     *int    `query:"page"`
-	PageSize *int    `query:"page_size"`
-	Sort     *string `query:"sort"`
-	Order    *string `query:"order"`
+func NewCondition(query interface{}, args ...interface{}) *Condition {
+	return &Condition{
+		Query: query,
+		Args:  args,
+	}
 }
 
-type baseRepository[T any] struct {
-	db *gorm.DB
+func NewRelation(query string, args ...interface{}) *Relation {
+	return &Relation{
+		Query: query,
+		Args:  args,
+	}
+}
+
+func NewPaginationQuery(page *int, pageSize *int, sort *string, order *string) *PaginationQuery {
+	return &PaginationQuery{
+		Page:     page,
+		PageSize: pageSize,
+		Sort:     sort,
+		Order:    order,
+	}
 }
 
 func New[T any](db *gorm.DB) Base[T] {
