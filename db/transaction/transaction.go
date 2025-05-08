@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Util interface {
+type TransactionUtil interface {
 	ExecuteInTransaction(fn func(tx *gorm.DB) error) error
 	GetTransaction() *gorm.DB
 	Begin() error
@@ -17,7 +17,7 @@ type util struct {
 	tx *gorm.DB
 }
 
-func New(db *gorm.DB) Util {
+func New(db *gorm.DB) TransactionUtil {
 	return &util{
 		db: db,
 	}

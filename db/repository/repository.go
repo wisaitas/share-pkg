@@ -27,7 +27,7 @@ type (
 	}
 )
 
-type Base[T any] interface {
+type BaseRepository[T any] interface {
 	GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error
 	GetBy(item *T, condition *Condition, relations *[]Relation) error
 	Create(item *T) error
@@ -38,7 +38,7 @@ type Base[T any] interface {
 	SaveMany(items *[]T) error
 	Delete(item *T) error
 	DeleteMany(items *[]T) error
-	WithTx(tx *gorm.DB) Base[T]
+	WithTx(tx *gorm.DB) BaseRepository[T]
 }
 
 func NewCondition(query interface{}, args ...interface{}) *Condition {
@@ -64,7 +64,7 @@ func NewPaginationQuery(page *int, pageSize *int, sort *string, order *string) *
 	}
 }
 
-func New[T any](db *gorm.DB) Base[T] {
+func New[T any](db *gorm.DB) BaseRepository[T] {
 	return &baseRepository[T]{
 		db: db,
 	}
@@ -146,7 +146,7 @@ func (r *baseRepository[T]) DeleteMany(items *[]T) error {
 	return r.db.Delete(items).Error
 }
 
-func (r *baseRepository[T]) WithTx(tx *gorm.DB) Base[T] {
+func (r *baseRepository[T]) WithTx(tx *gorm.DB) BaseRepository[T] {
 	return &baseRepository[T]{
 		db: tx,
 	}
