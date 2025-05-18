@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type TransactionUtil interface {
+type Transaction interface {
 	ExecuteInTransaction(fn func(tx *gorm.DB) error) error
 	GetTransaction() *gorm.DB
 	Begin() error
@@ -12,18 +12,18 @@ type TransactionUtil interface {
 	Rollback() error
 }
 
-type util struct {
+type transaction struct {
 	db *gorm.DB
 	tx *gorm.DB
 }
 
-func New(db *gorm.DB) TransactionUtil {
-	return &util{
+func New(db *gorm.DB) Transaction {
+	return &transaction{
 		db: db,
 	}
 }
 
-func (tm *util) ExecuteInTransaction(fn func(tx *gorm.DB) error) error {
+func (tm *transaction) ExecuteInTransaction(fn func(tx *gorm.DB) error) error {
 	tx := tm.db.Begin()
 	if tx.Error != nil {
 		return tx.Error
@@ -44,14 +44,14 @@ func (tm *util) ExecuteInTransaction(fn func(tx *gorm.DB) error) error {
 	return tx.Commit().Error
 }
 
-func (tm *util) GetTransaction() *gorm.DB {
+func (tm *transaction) GetTransaction() *gorm.DB {
 	if tm.tx != nil {
 		return tm.tx
 	}
 	return tm.db
 }
 
-func (tm *util) Begin() error {
+func (tm *transaction) Begin() error {
 	tx := tm.db.Begin()
 	if tx.Error != nil {
 		return tx.Error
@@ -60,7 +60,7 @@ func (tm *util) Begin() error {
 	return nil
 }
 
-func (tm *util) Commit() error {
+func (tm *transaction) Commit() error {
 	if tm.tx == nil {
 		return nil
 	}
@@ -69,7 +69,7 @@ func (tm *util) Commit() error {
 	return err
 }
 
-func (tm *util) Rollback() error {
+func (tm *transaction) Rollback() error {
 	if tm.tx == nil {
 		return nil
 	}
