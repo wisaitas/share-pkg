@@ -1,4 +1,4 @@
-package jwt
+package jwtutil
 
 import (
 	"errors"
@@ -24,7 +24,7 @@ func (s StandardClaims) GetID() string {
 	return s.ID
 }
 
-type Util interface {
+type JwtUtil interface {
 	Generate(claims Claims, secret string) (string, error)
 	Parse(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error)
 	ExtractTokenFromHeader(c *fiber.Ctx) (string, error)
@@ -32,13 +32,13 @@ type Util interface {
 	CreateStandardClaims(id string, expireTime time.Duration) StandardClaims
 }
 
-type util struct{}
+type jwtUtil struct{}
 
-func New() Util {
-	return &util{}
+func New() JwtUtil {
+	return &jwtUtil{}
 }
 
-func (j *util) Generate(claims Claims, secret string) (string, error) {
+func (j *jwtUtil) Generate(claims Claims, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
@@ -48,7 +48,7 @@ func (j *util) Generate(claims Claims, secret string) (string, error) {
 	return tokenString, nil
 }
 
-func (j *util) ExtractTokenFromHeader(c *fiber.Ctx) (string, error) {
+func (j *jwtUtil) ExtractTokenFromHeader(c *fiber.Ctx) (string, error) {
 	authHeader := c.Get("Authorization")
 	if !strings.HasPrefix(authHeader, "Bearer ") {
 		return "", errors.New("invalid token type")
@@ -58,7 +58,7 @@ func (j *util) ExtractTokenFromHeader(c *fiber.Ctx) (string, error) {
 	return token, nil
 }
 
-func (j *util) Parse(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error) {
+func (j *jwtUtil) Parse(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error) {
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -73,12 +73,12 @@ func (j *util) Parse(tokenString string, claims jwt.Claims, secret string) (jwt.
 	return claims, nil
 }
 
-func (j *util) ValidateToken(tokenString string, claims jwt.Claims, secret string) error {
+func (j *jwtUtil) ValidateToken(tokenString string, claims jwt.Claims, secret string) error {
 	_, err := j.Parse(tokenString, claims, secret)
 	return err
 }
 
-func (j *util) CreateStandardClaims(id string, expireTime time.Duration) StandardClaims {
+func (j *jwtUtil) CreateStandardClaims(id string, expireTime time.Duration) StandardClaims {
 	return StandardClaims{
 		ID: id,
 		RegisteredClaims: jwt.RegisteredClaims{
