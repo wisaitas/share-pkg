@@ -1,4 +1,4 @@
-package sql
+package sqlutil
 
 const (
 	DRIVER_POSTGRES = "postgres"

@@ -1,4 +1,4 @@
-package repository
+package repositoryutil
 
 import (
 	"gorm.io/gorm"
@@ -22,12 +22,12 @@ type (
 		Order    *string `query:"order"`
 	}
 
-	baseRepository[T any] struct {
+	repositoryUtil[T any] struct {
 		db *gorm.DB
 	}
 )
 
-type BaseRepository[T any] interface {
+type RepositoryUtil[T any] interface {
 	GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error
 	GetBy(item *T, condition *Condition, relations *[]Relation) error
 	Create(item *T) error
@@ -38,7 +38,7 @@ type BaseRepository[T any] interface {
 	SaveMany(items *[]T) error
 	Delete(item *T) error
 	DeleteMany(items *[]T) error
-	WithTx(tx *gorm.DB) BaseRepository[T]
+	WithTx(tx *gorm.DB) RepositoryUtil[T]
 }
 
 func NewCondition(query interface{}, args ...interface{}) *Condition {
@@ -64,13 +64,13 @@ func NewPaginationQuery(page *int, pageSize *int, sort *string, order *string) *
 	}
 }
 
-func New[T any](db *gorm.DB) BaseRepository[T] {
-	return &baseRepository[T]{
+func New[T any](db *gorm.DB) RepositoryUtil[T] {
+	return &repositoryUtil[T]{
 		db: db,
 	}
 }
 
-func (r *baseRepository[T]) GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error {
+func (r *repositoryUtil[T]) GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error {
 	query := r.db
 
 	if condition != nil {
@@ -98,7 +98,7 @@ func (r *baseRepository[T]) GetAll(items *[]T, pagination *PaginationQuery, cond
 	return query.Find(items).Error
 }
 
-func (r *baseRepository[T]) GetBy(item *T, condition *Condition, relations *[]Relation) error {
+func (r *repositoryUtil[T]) GetBy(item *T, condition *Condition, relations *[]Relation) error {
 	query := r.db
 
 	if condition != nil {
@@ -114,40 +114,40 @@ func (r *baseRepository[T]) GetBy(item *T, condition *Condition, relations *[]Re
 	return query.First(item).Error
 }
 
-func (r *baseRepository[T]) Create(item *T) error {
+func (r *repositoryUtil[T]) Create(item *T) error {
 	return r.db.Create(item).Error
 }
 
-func (r *baseRepository[T]) CreateMany(items *[]T) error {
+func (r *repositoryUtil[T]) CreateMany(items *[]T) error {
 	return r.db.Create(items).Error
 }
 
-func (r *baseRepository[T]) Update(item *T) error {
+func (r *repositoryUtil[T]) Update(item *T) error {
 	return r.db.Updates(item).Error
 }
 
-func (r *baseRepository[T]) UpdateMany(items *[]T) error {
+func (r *repositoryUtil[T]) UpdateMany(items *[]T) error {
 	return r.db.Updates(items).Error
 }
 
-func (r *baseRepository[T]) Save(item *T) error {
+func (r *repositoryUtil[T]) Save(item *T) error {
 	return r.db.Save(item).Error
 }
 
-func (r *baseRepository[T]) SaveMany(items *[]T) error {
+func (r *repositoryUtil[T]) SaveMany(items *[]T) error {
 	return r.db.Save(items).Error
 }
 
-func (r *baseRepository[T]) Delete(item *T) error {
+func (r *repositoryUtil[T]) Delete(item *T) error {
 	return r.db.Delete(item).Error
 }
 
-func (r *baseRepository[T]) DeleteMany(items *[]T) error {
+func (r *repositoryUtil[T]) DeleteMany(items *[]T) error {
 	return r.db.Delete(items).Error
 }
 
-func (r *baseRepository[T]) WithTx(tx *gorm.DB) BaseRepository[T] {
-	return &baseRepository[T]{
+func (r *repositoryUtil[T]) WithTx(tx *gorm.DB) RepositoryUtil[T] {
+	return &repositoryUtil[T]{
 		db: tx,
 	}
 }
