@@ -9,7 +9,7 @@ import (
 	"errors"
 
 	"github.com/spf13/viper"
-	"gitlab.com/wisaitas1/trade-store-share-pkg/util/strings"
+	"github.com/wisaitas/share-pkg/stringutil"
 )
 
 var configViper = viper.New()
@@ -71,14 +71,14 @@ func processStruct(val reflect.Value, viperPrefix string, envPrefix string) erro
 		tagValue := typ.Field(i).Tag.Get(TAG_CONFIG)
 		field := val.Field(i)
 
-		snakeFieldName := strings.ToSnakeCase(fieldName)
+		snakeFieldName := stringutil.ToSnakeCase(fieldName)
 		viperKey := snakeFieldName
 
 		if viperPrefix != "" {
 			viperKey = viperPrefix + "." + snakeFieldName
 		}
 
-		fieldEnvName := strings.ToScreamingSnakeCase(fieldName)
+		fieldEnvName := stringutil.ToScreamingSnakeCase(fieldName)
 		envKey := fieldEnvName
 
 		if envPrefix != "" {

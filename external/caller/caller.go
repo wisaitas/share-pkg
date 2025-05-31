@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"gitlab.com/wisaitas1/trade-store-share-pkg/external"
+	"github.com/wisaitas/share-pkg/external"
 )
 
 type Caller interface {

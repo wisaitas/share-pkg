@@ -3,8 +3,8 @@ package logger
 import (
 	"encoding/json"
 
-	"gitlab.com/wisaitas1/trade-store-share-pkg/errs"
-	"gitlab.com/wisaitas1/trade-store-share-pkg/notify/discord"
+	"github.com/wisaitas/share-pkg/errs"
+	"github.com/wisaitas/share-pkg/notify/discord"
 	"go.uber.org/zap"
 )
 
