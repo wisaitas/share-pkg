@@ -21,25 +21,7 @@ type (
 		Sort     *string `query:"sort"`
 		Order    *string `query:"order"`
 	}
-
-	repositoryUtil[T any] struct {
-		db *gorm.DB
-	}
 )
-
-type RepositoryUtil[T any] interface {
-	GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error
-	GetBy(item *T, condition *Condition, relations *[]Relation) error
-	Create(item *T) error
-	CreateMany(items *[]T) error
-	Update(item *T) error
-	UpdateMany(items *[]T) error
-	Save(item *T) error
-	SaveMany(items *[]T) error
-	Delete(item *T) error
-	DeleteMany(items *[]T) error
-	WithTx(tx *gorm.DB) RepositoryUtil[T]
-}
 
 func NewCondition(query interface{}, args ...interface{}) *Condition {
 	return &Condition{
@@ -62,6 +44,24 @@ func NewPaginationQuery(page *int, pageSize *int, sort *string, order *string) *
 		Sort:     sort,
 		Order:    order,
 	}
+}
+
+type RepositoryUtil[T any] interface {
+	GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error
+	GetBy(item *T, condition *Condition, relations *[]Relation) error
+	Create(item *T) error
+	CreateMany(items *[]T) error
+	Update(item *T) error
+	UpdateMany(items *[]T) error
+	Save(item *T) error
+	SaveMany(items *[]T) error
+	Delete(item *T) error
+	DeleteMany(items *[]T) error
+	WithTx(tx *gorm.DB) RepositoryUtil[T]
+}
+
+type repositoryUtil[T any] struct {
+	db *gorm.DB
 }
 
 func New[T any](db *gorm.DB) RepositoryUtil[T] {
