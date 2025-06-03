@@ -1,6 +1,8 @@
 package transactionutil
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -26,7 +28,7 @@ func New(db *gorm.DB) TransactionUtil {
 func (tm *transactionUtil) ExecuteInTransaction(fn func(tx *gorm.DB) error) error {
 	tx := tm.db.Begin()
 	if tx.Error != nil {
-		return tx.Error
+		return fmt.Errorf("[Share Package TransactionUtil] : %w", tx.Error)
 	}
 
 	defer func() {
@@ -38,10 +40,14 @@ func (tm *transactionUtil) ExecuteInTransaction(fn func(tx *gorm.DB) error) erro
 
 	if err := fn(tx); err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("[Share Package TransactionUtil] : %w", err)
 	}
 
-	return tx.Commit().Error
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("[Share Package TransactionUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (tm *transactionUtil) GetTransaction() *gorm.DB {
@@ -53,9 +59,11 @@ func (tm *transactionUtil) GetTransaction() *gorm.DB {
 
 func (tm *transactionUtil) Begin() error {
 	tx := tm.db.Begin()
+
 	if tx.Error != nil {
-		return tx.Error
+		return fmt.Errorf("[Share Package TransactionUtil] : %w", tx.Error)
 	}
+
 	tm.tx = tx
 	return nil
 }
@@ -64,16 +72,24 @@ func (tm *transactionUtil) Commit() error {
 	if tm.tx == nil {
 		return nil
 	}
-	err := tm.tx.Commit().Error
+
+	if err := tm.tx.Commit().Error; err != nil {
+		return fmt.Errorf("[Share Package TransactionUtil] : %w", err)
+	}
+
 	tm.tx = nil
-	return err
+	return nil
 }
 
 func (tm *transactionUtil) Rollback() error {
 	if tm.tx == nil {
 		return nil
 	}
-	err := tm.tx.Rollback().Error
+
+	if err := tm.tx.Rollback().Error; err != nil {
+		return fmt.Errorf("[Share Package TransactionUtil] : %w", err)
+	}
+
 	tm.tx = nil
-	return err
+	return nil
 }

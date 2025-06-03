@@ -1,6 +1,10 @@
 package validatorutil
 
-import "github.com/go-playground/validator/v10"
+import (
+	"fmt"
+
+	"github.com/go-playground/validator/v10"
+)
 
 type ValidatorUtil interface {
 	ValidateStruct(param any) error
@@ -15,5 +19,9 @@ func New() ValidatorUtil {
 }
 
 func (v *validatorUtil) ValidateStruct(param any) error {
-	return v.validator.Struct(param)
+	if err := v.validator.Struct(param); err != nil {
+		return fmt.Errorf("[Share Package ValidatorUtil] : %w", err)
+	}
+
+	return nil
 }

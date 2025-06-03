@@ -33,7 +33,7 @@ func ConnectDatabaseSQL(
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("[Share Package SqlUtil] : %w", err)
 		}
 
 		return db, nil
@@ -43,24 +43,24 @@ func ConnectDatabaseSQL(
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("[Share Package SqlUtil] : %w", err)
 		}
 
 		return db, nil
 
 	default:
-		return nil, errors.New("invalid driver: " + driver)
+		return nil, errors.New("[Share Package SqlUtil] : invalid driver: " + driver)
 	}
 }
 
 func DisconnectDatabaseSQL(db *gorm.DB) error {
 	sqlDB, err := db.DB()
 	if err != nil {
-		return err
+		return fmt.Errorf("[Share Package SqlUtil] : %w", err)
 	}
 
 	if err := sqlDB.Close(); err != nil {
-		return err
+		return fmt.Errorf("[Share Package SqlUtil] : %w", err)
 	}
 
 	return nil

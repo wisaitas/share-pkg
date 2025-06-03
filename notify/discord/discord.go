@@ -33,7 +33,7 @@ func (d *discord) SendMessage(message string) error {
 
 	body, err := json.Marshal(payload)
 	if err != nil {
-		return err
+		return fmt.Errorf("[Share Package Discord] : %w", err)
 	}
 
 	for _, config := range d.configs {
@@ -41,7 +41,7 @@ func (d *discord) SendMessage(message string) error {
 
 		_, err = http.Post(webhookURL, "application/json", bytes.NewBuffer(body))
 		if err != nil {
-			return err
+			return fmt.Errorf("[Share Package Discord] : %w", err)
 		}
 	}
 

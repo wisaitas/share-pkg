@@ -45,7 +45,7 @@ func readConfig(path string) error {
 	secretViper.SetConfigFile(path)
 
 	if err := secretViper.ReadInConfig(); err != nil {
-		return err
+		return fmt.Errorf("[Share Package Secret] : %w", err)
 	}
 
 	return nil
@@ -53,7 +53,7 @@ func readConfig(path string) error {
 
 func ReadSecret(param any) error {
 	if param == nil {
-		return errors.New("val is nil")
+		return errors.New("[Share Package Secret] : val is nil")
 	}
 
 	val := reflect.ValueOf(param)
@@ -62,7 +62,7 @@ func ReadSecret(param any) error {
 	}
 
 	if val.Kind() != reflect.Struct {
-		return errors.New("param must be a struct")
+		return errors.New("[Share Package Secret] : param must be a struct")
 	}
 
 	return processStruct(val, "", "")
@@ -77,7 +77,6 @@ func processStruct(val reflect.Value, viperPrefix string, envPrefix string) erro
 
 		snakeFieldName := stringutil.ToSnakeCase(fieldName)
 		viperKey := snakeFieldName
-		fmt.Printf("viperKey: %s\n", viperKey)
 
 		if viperPrefix != "" {
 			viperKey = viperPrefix + "." + snakeFieldName
@@ -96,21 +95,21 @@ func processStruct(val reflect.Value, viperPrefix string, envPrefix string) erro
 
 		if envValue != "" {
 			if err := setFieldValue(field, envValue); err != nil {
-				return err
+				return fmt.Errorf("[Share Package Secret] : %w", err)
 			}
 			valueFound = true
 		}
 
 		if !valueFound && secretViper.IsSet(viperKey) {
 			if err := setFieldValue(field, secretViper.GetString(viperKey)); err != nil {
-				return err
+				return fmt.Errorf("[Share Package Secret] : %w", err)
 			}
 			valueFound = true
 		}
 
 		if !valueFound && tagValue != "" {
 			if err := setFieldValue(field, tagValue); err != nil {
-				return err
+				return fmt.Errorf("[Share Package Secret] : %w", err)
 			}
 		}
 
@@ -119,7 +118,7 @@ func processStruct(val reflect.Value, viperPrefix string, envPrefix string) erro
 			newEnvPrefix := envKey
 
 			if err := processStruct(field, newViperPrefix, newEnvPrefix); err != nil {
-				return err
+				return fmt.Errorf("[Share Package Secret] : %w", err)
 			}
 		}
 	}
@@ -138,7 +137,7 @@ func setFieldValue(field reflect.Value, value string) error {
 	case reflect.Int:
 		num, err := strconv.Atoi(value)
 		if err != nil {
-			return err
+			return fmt.Errorf("[Share Package Secret] : %w", err)
 		}
 		field.SetInt(int64(num))
 	case reflect.Bool:
@@ -147,12 +146,12 @@ func setFieldValue(field reflect.Value, value string) error {
 		} else if value == UPPER_FALSE || value == LOWER_FALSE || value == ZERO {
 			field.SetBool(false)
 		} else {
-			return errors.New("invalid bool value")
+			return errors.New("[Share Package Secret] : invalid bool value")
 		}
 	case reflect.Int64:
 		duration, err := time.ParseDuration(value)
 		if err != nil {
-			return err
+			return fmt.Errorf("[Share Package Secret] : %w", err)
 		}
 		field.SetInt(int64(duration))
 	}

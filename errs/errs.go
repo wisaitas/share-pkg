@@ -1,6 +1,7 @@
 package errs
 
 import (
+	"fmt"
 	"runtime"
 	"strconv"
 
@@ -21,7 +22,7 @@ func ErrorMessageWithLog(err error, zlog *zap.Logger) (*Message, error) {
 
 	pc, file, line, ok := runtime.Caller(1)
 	if !ok {
-		return nil, err
+		return nil, fmt.Errorf("[Share Package Errs] : %w", err)
 	}
 
 	fn := runtime.FuncForPC(pc)
@@ -47,7 +48,7 @@ func ErrorMessageWithoutLog(err error) (*Message, error) {
 
 	pc, file, line, ok := runtime.Caller(1)
 	if !ok {
-		return nil, err
+		return nil, fmt.Errorf("[Share Package Errs] : %w", err)
 	}
 
 	fn := runtime.FuncForPC(pc)
@@ -71,7 +72,7 @@ func ErrorWithLog(err error, zlog *zap.Logger) error {
 
 	pc, file, line, ok := runtime.Caller(1)
 	if !ok {
-		return err
+		return fmt.Errorf("[Share Package Errs] : %w", err)
 	}
 
 	fn := runtime.FuncForPC(pc)

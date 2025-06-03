@@ -34,7 +34,7 @@ type JwtUtil interface {
 
 type jwtUtil struct{}
 
-func New() JwtUtil {
+func NewJwtUtil() JwtUtil {
 	return &jwtUtil{}
 }
 
@@ -42,7 +42,7 @@ func (j *jwtUtil) Generate(claims Claims, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("[Share Package JwtUtil] : %w", err)
 	}
 
 	return tokenString, nil
@@ -51,7 +51,7 @@ func (j *jwtUtil) Generate(claims Claims, secret string) (string, error) {
 func (j *jwtUtil) ExtractTokenFromHeader(c *fiber.Ctx) (string, error) {
 	authHeader := c.Get("Authorization")
 	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return "", errors.New("invalid token type")
+		return "", errors.New("[Share Package JwtUtil] : invalid token type")
 	}
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
@@ -61,7 +61,7 @@ func (j *jwtUtil) ExtractTokenFromHeader(c *fiber.Ctx) (string, error) {
 func (j *jwtUtil) Parse(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error) {
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("[Share Package JwtUtil] : unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(secret), nil
 	})
@@ -75,7 +75,11 @@ func (j *jwtUtil) Parse(tokenString string, claims jwt.Claims, secret string) (j
 
 func (j *jwtUtil) ValidateToken(tokenString string, claims jwt.Claims, secret string) error {
 	_, err := j.Parse(tokenString, claims, secret)
-	return err
+	if err != nil {
+		return fmt.Errorf("[Share Package JwtUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (j *jwtUtil) CreateStandardClaims(id string, expireTime time.Duration) StandardClaims {

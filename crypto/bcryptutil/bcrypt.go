@@ -1,6 +1,10 @@
 package bcryptutil
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 type BcryptUtil interface {
 	GenerateFromPassword(password string, cost int) ([]byte, error)
@@ -10,14 +14,23 @@ type BcryptUtil interface {
 type bcryptUtil struct {
 }
 
-func New() BcryptUtil {
+func NewBcryptUtil() BcryptUtil {
 	return &bcryptUtil{}
 }
 
 func (r *bcryptUtil) GenerateFromPassword(password string, cost int) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), cost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), cost)
+	if err != nil {
+		return nil, fmt.Errorf("[Share Package BcryptUtil] : %w", err)
+	}
+
+	return hashedPassword, nil
 }
 
 func (r *bcryptUtil) CompareHashAndPassword(hashedPassword, password []byte) error {
-	return bcrypt.CompareHashAndPassword(hashedPassword, password)
+	if err := bcrypt.CompareHashAndPassword(hashedPassword, password); err != nil {
+		return fmt.Errorf("[Share Package BcryptUtil] : %w", err)
+	}
+
+	return nil
 }

@@ -1,50 +1,10 @@
 package repositoryutil
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 )
-
-type (
-	Condition struct {
-		Query interface{}
-		Args  []interface{}
-	}
-
-	Relation struct {
-		Query string
-		Args  []interface{}
-	}
-
-	PaginationQuery struct {
-		Page     *int    `query:"page"`
-		PageSize *int    `query:"page_size"`
-		Sort     *string `query:"sort"`
-		Order    *string `query:"order"`
-	}
-)
-
-func NewCondition(query interface{}, args ...interface{}) *Condition {
-	return &Condition{
-		Query: query,
-		Args:  args,
-	}
-}
-
-func NewRelation(query string, args ...interface{}) *Relation {
-	return &Relation{
-		Query: query,
-		Args:  args,
-	}
-}
-
-func NewPaginationQuery(page *int, pageSize *int, sort *string, order *string) *PaginationQuery {
-	return &PaginationQuery{
-		Page:     page,
-		PageSize: pageSize,
-		Sort:     sort,
-		Order:    order,
-	}
-}
 
 type RepositoryUtil[T any] interface {
 	GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error
@@ -95,7 +55,11 @@ func (r *repositoryUtil[T]) GetAll(items *[]T, pagination *PaginationQuery, cond
 		}
 	}
 
-	return query.Find(items).Error
+	if err := query.Find(items).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) GetBy(item *T, condition *Condition, relations *[]Relation) error {
@@ -111,39 +75,75 @@ func (r *repositoryUtil[T]) GetBy(item *T, condition *Condition, relations *[]Re
 		}
 	}
 
-	return query.First(item).Error
+	if err := query.First(item).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) Create(item *T) error {
-	return r.db.Create(item).Error
+	if err := r.db.Create(item).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) CreateMany(items *[]T) error {
-	return r.db.Create(items).Error
+	if err := r.db.Create(items).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) Update(item *T) error {
-	return r.db.Updates(item).Error
+	if err := r.db.Updates(item).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) UpdateMany(items *[]T) error {
-	return r.db.Updates(items).Error
+	if err := r.db.Updates(items).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) Save(item *T) error {
-	return r.db.Save(item).Error
+	if err := r.db.Save(item).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) SaveMany(items *[]T) error {
-	return r.db.Save(items).Error
+	if err := r.db.Save(items).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) Delete(item *T) error {
-	return r.db.Delete(item).Error
+	if err := r.db.Delete(item).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) DeleteMany(items *[]T) error {
-	return r.db.Delete(items).Error
+	if err := r.db.Delete(items).Error; err != nil {
+		return fmt.Errorf("[Share Package RepositoryUtil] : %w", err)
+	}
+
+	return nil
 }
 
 func (r *repositoryUtil[T]) WithTx(tx *gorm.DB) RepositoryUtil[T] {
