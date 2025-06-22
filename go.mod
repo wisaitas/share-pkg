@@ -1,4 +1,4 @@
-module github.com/wisaitas/shared-pkg
+module github.com/wisaitas/share-pkg
 
 go 1.23.2
 

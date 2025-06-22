@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/wisaitas/shared-pkg/response"
+	"github.com/wisaitas/share-pkg/response"
 	"gorm.io/gorm"
 )
 
