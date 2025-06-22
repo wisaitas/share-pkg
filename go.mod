@@ -10,7 +10,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.9.0
 	github.com/spf13/viper v1.20.1
-	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.33.0
 	gorm.io/gorm v1.26.1
 )
