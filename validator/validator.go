@@ -8,7 +8,7 @@ import (
 
 	validatorLib "github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"github.com/wisaitas/share-pkg/db/repository"
+	"github.com/wisaitas/shared-pkg/db/repository"
 )
 
 type Validator interface {

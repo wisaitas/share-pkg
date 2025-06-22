@@ -11,8 +11,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	jwtLib "github.com/golang-jwt/jwt/v5"
 	redisLib "github.com/redis/go-redis/v9"
-	contextPkg "github.com/wisaitas/share-pkg/auth/context"
-	"github.com/wisaitas/share-pkg/cache/redis"
+	contextPkg "github.com/wisaitas/shared-pkg/auth/context"
+	"github.com/wisaitas/shared-pkg/cache/redis"
 )
 
 type Claims interface {
