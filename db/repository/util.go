@@ -1,4 +1,4 @@
-package repositoryutil
+package repository
 
 func NewCondition(query interface{}, args ...interface{}) *Condition {
 	return &Condition{

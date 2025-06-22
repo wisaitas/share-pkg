@@ -16,6 +16,7 @@ type Entity struct {
 	UpdatedAt time.Time       `gorm:"type:timestamp;not null;default:now()"`
 	UpdatedBy *uuid.UUID      `gorm:"type:uuid"`
 	DeletedAt *gorm.DeletedAt `gorm:"type:timestamp"`
+	DeletedBy *uuid.UUID      `gorm:"type:uuid"`
 }
 
 func (r *Entity) EntityToResponse() response.EntityResponse {

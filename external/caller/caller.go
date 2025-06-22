@@ -8,11 +8,11 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/wisaitas/share-pkg/external"
+	"github.com/wisaitas/share-pkg/response"
 )
 
 type Caller interface {
-	CallHttp(ctx context.Context, method external.Method, url string, headers []map[string]string, request any, response any) error
+	CallHttp(ctx context.Context, method string, url string, headers []map[string]string, request any, response *response.ApiResponse[any]) error
 }
 
 type caller struct {
@@ -22,7 +22,8 @@ func NewCaller() Caller {
 	return &caller{}
 }
 
-func (c *caller) CallHttp(ctx context.Context, method external.Method, url string, headers []map[string]string, request any, response any) (err error) {
+// CallHttpWithResponse - Pass by reference, return only error
+func (c *caller) CallHttp(ctx context.Context, method string, url string, headers []map[string]string, req any, resp *response.ApiResponse[any]) error {
 	httpHeader := http.Header{}
 	for _, header := range headers {
 		for key, value := range header {
@@ -31,8 +32,8 @@ func (c *caller) CallHttp(ctx context.Context, method external.Method, url strin
 	}
 
 	bodyBuffer := bytes.NewBuffer(nil)
-	if request != nil {
-		bodyJson, err := json.Marshal(request)
+	if req != nil {
+		bodyJson, err := json.Marshal(req)
 		if err != nil {
 			return fmt.Errorf("[Share Package Caller] : %w", err)
 		}
@@ -57,8 +58,16 @@ func (c *caller) CallHttp(ctx context.Context, method external.Method, url strin
 		return fmt.Errorf("[Share Package Caller] : %w", err)
 	}
 
-	if err := json.Unmarshal(responseBody, &response); err != nil {
-		return fmt.Errorf("[Share Package Caller] : %w", err)
+	if err := json.Unmarshal(responseBody, resp); err != nil {
+		return fmt.Errorf("[Share Package Caller] failed to unmarshal response: %w", err)
+	}
+
+	resp.HttpStatusCode = httpResponse.StatusCode
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
+		return &ServiceError{
+			StatusCode: httpResponse.StatusCode,
+			Response:   resp,
+		}
 	}
 
 	return nil

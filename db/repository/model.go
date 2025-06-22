@@ -1,4 +1,4 @@
-package repositoryutil
+package repository
 
 type Condition struct {
 	Query interface{}

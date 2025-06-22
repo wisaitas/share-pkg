@@ -1,35 +1,35 @@
-package bcryptutil
+package bcrypt
 
 import (
 	"fmt"
 
-	"golang.org/x/crypto/bcrypt"
+	bcryptLib "golang.org/x/crypto/bcrypt"
 )
 
-type BcryptUtil interface {
+type Bcrypt interface {
 	GenerateFromPassword(password string, cost int) ([]byte, error)
 	CompareHashAndPassword(hashedPassword, password []byte) error
 }
 
-type bcryptUtil struct {
+type bcrypt struct {
 }
 
-func NewBcryptUtil() BcryptUtil {
-	return &bcryptUtil{}
+func NewBcrypt() Bcrypt {
+	return &bcrypt{}
 }
 
-func (r *bcryptUtil) GenerateFromPassword(password string, cost int) ([]byte, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), cost)
+func (r *bcrypt) GenerateFromPassword(password string, cost int) ([]byte, error) {
+	hashedPassword, err := bcryptLib.GenerateFromPassword([]byte(password), cost)
 	if err != nil {
-		return nil, fmt.Errorf("[Share Package BcryptUtil] : %w", err)
+		return nil, fmt.Errorf("[bcrypt] : %w", err)
 	}
 
 	return hashedPassword, nil
 }
 
-func (r *bcryptUtil) CompareHashAndPassword(hashedPassword, password []byte) error {
-	if err := bcrypt.CompareHashAndPassword(hashedPassword, password); err != nil {
-		return fmt.Errorf("[Share Package BcryptUtil] : %w", err)
+func (r *bcrypt) CompareHashAndPassword(hashedPassword, password []byte) error {
+	if err := bcryptLib.CompareHashAndPassword(hashedPassword, password); err != nil {
+		return fmt.Errorf("[bcrypt] : %w", err)
 	}
 
 	return nil
