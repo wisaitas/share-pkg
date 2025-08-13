@@ -13,7 +13,9 @@ type BaseRepository[T any] interface {
 	SaveMany(items *[]T) error
 	Delete(item *T) error
 	DeleteMany(items *[]T) error
-	WithTx(tx *gorm.DB) BaseRepository[T]
+	Begin() BaseRepository[T]
+	Commit() error
+	Rollback() error
 }
 
 func NewBaseRepository[T any](db *gorm.DB) BaseRepository[T] {
@@ -102,8 +104,16 @@ func (r *baseRepository[T]) DeleteMany(items *[]T) error {
 	return r.db.Delete(items).Error
 }
 
-func (r *baseRepository[T]) WithTx(tx *gorm.DB) BaseRepository[T] {
+func (r *baseRepository[T]) Begin() BaseRepository[T] {
 	return &baseRepository[T]{
-		db: tx,
+		db: r.db.Begin(),
 	}
+}
+
+func (r *baseRepository[T]) Commit() error {
+	return r.db.Commit().Error
+}
+
+func (r *baseRepository[T]) Rollback() error {
+	return r.db.Rollback().Error
 }
