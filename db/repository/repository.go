@@ -1,6 +1,8 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type BaseRepository[T any] interface {
 	GetAll(items *[]T, pagination *PaginationQuery, condition *Condition, relations *[]Relation) error
@@ -13,6 +15,8 @@ type BaseRepository[T any] interface {
 	SaveMany(items *[]T) error
 	Delete(item *T) error
 	DeleteMany(items *[]T) error
+	WithTx(tx *gorm.DB) BaseRepository[T]
+	GetDB() *gorm.DB
 	Begin() BaseRepository[T]
 	Commit() error
 	Rollback() error
@@ -105,8 +109,9 @@ func (r *baseRepository[T]) DeleteMany(items *[]T) error {
 }
 
 func (r *baseRepository[T]) Begin() BaseRepository[T] {
+	tx := r.db.Begin()
 	return &baseRepository[T]{
-		db: r.db.Begin(),
+		db: tx,
 	}
 }
 
@@ -116,4 +121,14 @@ func (r *baseRepository[T]) Commit() error {
 
 func (r *baseRepository[T]) Rollback() error {
 	return r.db.Rollback().Error
+}
+
+func (r *baseRepository[T]) WithTx(tx *gorm.DB) BaseRepository[T] {
+	return &baseRepository[T]{
+		db: tx,
+	}
+}
+
+func (r *baseRepository[T]) GetDB() *gorm.DB {
+	return r.db
 }
