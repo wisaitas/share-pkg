@@ -72,7 +72,7 @@ func NewErrorResponse[T any](c *fiber.Ctx, statusCode int, err error) error {
 	})
 }
 
-func NewSuccessResponse[T any](data *T, statusCode int, pagination *Pagination, publicMessage ...string) StandardResponse[T] {
+func NewSuccessResponse[T any](c *fiber.Ctx, data *T, statusCode int, pagination *Pagination, publicMessage ...string) error {
 	var msg *string
 	if len(publicMessage) > 0 {
 		msg = &publicMessage[0]
@@ -91,12 +91,13 @@ func NewSuccessResponse[T any](data *T, statusCode int, pagination *Pagination, 
 		code = "E20000"
 	}
 
-	return StandardResponse[T]{
+	return c.Status(statusCode).JSON(&StandardResponse[T]{
 		Timestamp:     time.Now().Format(time.RFC3339),
 		StatusCode:    statusCode,
 		Data:          data,
 		Code:          code,
 		Pagination:    pagination,
 		PublicMessage: msg,
-	}
+	})
+
 }
