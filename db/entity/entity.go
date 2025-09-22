@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/wisaitas/share-pkg/response"
 	"gorm.io/gorm"
 )
 
@@ -17,16 +16,6 @@ type Entity struct {
 	UpdatedBy *uuid.UUID      `gorm:"type:uuid"`
 	DeletedAt *gorm.DeletedAt `gorm:"type:timestamp"`
 	DeletedBy *uuid.UUID      `gorm:"type:uuid"`
-}
-
-func (r *Entity) EntityToResponse() response.EntityResponse {
-	return response.EntityResponse{
-		Id:        r.Id,
-		CreatedAt: r.CreatedAt,
-		CreatedBy: r.CreatedBy,
-		UpdatedAt: r.UpdatedAt,
-		UpdatedBy: r.UpdatedBy,
-	}
 }
 
 func (r *Entity) BeforeUpdate(tx *gorm.DB) (err error) {
